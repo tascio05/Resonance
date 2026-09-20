@@ -15,5 +15,5 @@ The system implements strict Role-Based Access Control (RBAC) with three primary
 
 ## 🗄️ Database Architecture
 
-![image]("C:\Users\Lorenzo\Documents\Projects\Resonance\temps\entity-relationship_diagram.png")
+![DB Schemas](./docs/entity-relationship_diagram.png)
 
