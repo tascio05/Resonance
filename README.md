@@ -1,4 +1,4 @@
-# [Nome Progetto - es. VibeCore API]
+# Resonance
 A robust, role-based REST API for audio catalog management and user interactions, built with FastAPI and PostgreSQL.
 
 ## 🎯 Core Business Logic
