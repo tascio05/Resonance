@@ -1,10 +1,14 @@
+#from backend.database import session
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from core.security import oauth2_scheme
 from sqlalchemy.orm import Session
 
-from core.security import get_password_hash
+from core.security import get_password_hash, pwd_context
 from database.models import User
 import schemas
 from database.session import get_db
+from core.security import create_access_token
 
 router = APIRouter()
 
@@ -23,3 +27,19 @@ def register_user(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@router.post("/login")
+def login_user(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+
+    existing_user = db.query(User).filter(User.username == form_data.username).first()
+    if not existing_user or not pwd_context.verify(form_data.password, existing_user.password_hash):
+        raise HTTPException(status_code=401, detail="Wrong username or password")
+    
+    access_token = create_access_token(data={"sub": existing_user.username})
+
+    return{
+        "access_token": access_token,
+        "token_type": "bearer",
+        "message": "logged in"
+    }

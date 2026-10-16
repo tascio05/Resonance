@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import JSONResponse
 
-from api.users import router as register_router
+from api.users import router as user_router
 
 app = FastAPI(
     title="Resonance",
@@ -15,7 +15,7 @@ app = FastAPI(
 api_router = APIRouter(prefix="/api")
 
 
-api_router.include_router(register_router, prefix="/users", tags=["Users"])
+api_router.include_router(user_router, prefix="/users", tags=["Users"])
 
 app.include_router(api_router)
 
