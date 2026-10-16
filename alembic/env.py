@@ -1,14 +1,22 @@
+import sys
+import os
 from logging.config import fileConfig
+from sqlalchemy import create_engine
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
 
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BACKEND_DIR = os.path.join(ROOT_DIR, 'src', 'backend')
+
+sys.path.insert(0, BACKEND_DIR)
+sys.path.insert(0, ROOT_DIR)
+
+import database.models
 from src.backend.core.config import settings
 from src.backend.database.session import Base
-
-import src.backend.database.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -63,14 +71,13 @@ def run_migrations_online() -> None:
 
     """
 
+    dynamic_url = f"postgresql+psycopg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@localhost:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+    config.set_main_option("sqlalchemy.url", dynamic_url)
+
     configuration = config.get_section(config.config_ini_section, {})
     configuration["sqlalchemy.url"] = settings.database_url
 
-    connectable = engine_from_config(
-        configuration,
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = create_engine(dynamic_url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
