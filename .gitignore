@@ -219,3 +219,6 @@ __marimo__/
 
 # Temporary folder for personal use
 temps/
+
+# Test and local database
+*.sqlite

@@ -30,6 +30,7 @@ class Song(Base):
     user_id = Column(Integer, ForeignKey("users.id"), index=True)
     title = Column(String, nullable=False)
     cover_url = Column(String, default=None)
+    audio_url = Column(String, nullable=False)
     length_seconds = Column(Integer, nullable=False)
     is_public = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, server_default=func.now())

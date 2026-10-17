@@ -7,7 +7,7 @@ from main import app
 from database.session import get_db
 from database.models import Base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_resonance.sqlite"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./tests/test_resonance.sqlite"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
