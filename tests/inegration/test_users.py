@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from services.users_services import get_user_by_username
 
 TEST_USER_DATA = {
     "username": "test_user_integration",
@@ -20,6 +21,13 @@ def test_register_user(client: TestClient):
     assert bad_response.status_code == 409
 
 
+def test_register_invalid_input(client: TestClient):
+    response = client.post(
+        "/api/users/register", json={"username": "1", "password": "123"}
+    )
+    assert response.status_code == 422
+
+
 def test_login_user(client: TestClient):
     client.post("/api/users/register", json=TEST_USER_DATA)
 
@@ -30,3 +38,14 @@ def test_login_user(client: TestClient):
 
     bad_response = client.post("/api/users/login", data=TEST_WRONG_USER_DATA)
     assert bad_response.status_code == 401
+
+
+def test_login_inactive_user(client: TestClient, db_session):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+
+    user = get_user_by_username(db_session, username=TEST_USER_DATA["username"])
+    user.is_active = False
+    db_session.commit()
+
+    response = client.post("/api/users/login", data=TEST_USER_DATA)
+    assert response.status_code == 403
