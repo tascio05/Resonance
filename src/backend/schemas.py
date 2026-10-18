@@ -1,10 +1,13 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserCreate(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=3, max_length=30)
+    password: str = Field(..., min_length=8, max_length=128)
+
+    model_config = ConfigDict(str_strip_whitespace=True)
 
 
 class UserResponse(BaseModel):
@@ -26,3 +29,8 @@ class SongResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str

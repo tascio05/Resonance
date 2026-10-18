@@ -1,11 +1,10 @@
 import pytest
+from database.models import Base
+from database.session import get_db
 from fastapi.testclient import TestClient
+from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from main import app
-from database.session import get_db
-from database.models import Base
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./tests/test_resonance.sqlite"
 

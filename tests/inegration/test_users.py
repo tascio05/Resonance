@@ -13,7 +13,7 @@ TEST_WRONG_USER_DATA = {
 
 def test_register_user(client: TestClient):
     response = client.post("/api/users/register", json=TEST_USER_DATA)
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json()["username"] == TEST_USER_DATA["username"]
 
     bad_response = client.post("/api/users/register", json=TEST_USER_DATA)

@@ -1,7 +1,6 @@
-from fastapi import FastAPI, APIRouter
+from api.users_controller import router as user_router
+from fastapi import APIRouter, FastAPI
 from fastapi.responses import JSONResponse
-
-from api.users import router as user_router
 
 app = FastAPI(
     title="Resonance",
@@ -22,4 +21,4 @@ app.include_router(api_router)
 
 @app.get("/health", include_in_schema=False)
 def health():
-    return JSONResponse(content={"status:": "ok"})
+    return JSONResponse(content={"status": "ok"})

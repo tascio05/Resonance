@@ -1,8 +1,9 @@
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, Enum, TIMESTAMP, ForeignKey
+
+from database.session import Base
+from sqlalchemy import TIMESTAMP, Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from database.session import Base
 
 
 class UserRole(enum.Enum):
@@ -17,7 +18,7 @@ class User(Base):
     username = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
     role = Column(Enum(UserRole), default=UserRole.Listener, nullable=False)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     songs = relationship("Song", back_populates="owner")
@@ -27,12 +28,13 @@ class User(Base):
 class Song(Base):
     __tablename__ = "songs"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
     title = Column(String, nullable=False)
     cover_url = Column(String, default=None)
     audio_url = Column(String, nullable=False)
     length_seconds = Column(Integer, nullable=False)
-    is_public = Column(Boolean, default=True)
+    is_public = Column(Boolean, default=True, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     owner = relationship("User", back_populates="songs")

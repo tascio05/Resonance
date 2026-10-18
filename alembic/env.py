@@ -1,12 +1,10 @@
-import sys
 import os
+import sys
 from logging.config import fileConfig
-from sqlalchemy import create_engine
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import create_engine, pool
+
 from alembic import context
-
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 BACKEND_DIR = os.path.join(ROOT_DIR, "src", "backend")
