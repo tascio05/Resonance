@@ -3,6 +3,7 @@ import shutil
 import uuid
 
 import mutagen
+import schemas
 from database.models import Song
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
@@ -10,9 +11,7 @@ from sqlalchemy.orm import Session
 
 def create_song(
     db: Session,
-    title: str,
-    cover_url: str | None,
-    is_public: bool,
+    song_in: schemas.SongCreate,
     audio_file: UploadFile,
     user_id: int,
 ) -> Song | None:
@@ -32,11 +31,11 @@ def create_song(
 
     new_song = Song(
         user_id=user_id,
-        title=title,
-        cover_url=cover_url,
+        title=song_in.title,
+        cover_url=song_in.cover_url,
+        is_public=song_in.is_public,
         audio_url=file_path,
         length_seconds=length_seconds,
-        is_public=is_public,
     )
 
     db.add(new_song)

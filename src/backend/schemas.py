@@ -18,6 +18,12 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class SongCreate(BaseModel):
+    title: str = (Field(..., min_length=1, max_length=100),)
+    cover_url: str | None = None
+    is_public: bool = True
+
+
 class SongResponse(BaseModel):
     id: int
     user_id: int

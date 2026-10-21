@@ -1,3 +1,4 @@
+from api.songs_controller import router as song_router
 from api.users_controller import router as user_router
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import JSONResponse
@@ -15,6 +16,7 @@ api_router = APIRouter(prefix="/api")
 
 
 api_router.include_router(user_router, prefix="/users", tags=["Users"])
+api_router.include_router(song_router, prefix="/songs", tags=["Songs"])
 
 app.include_router(api_router)
 
