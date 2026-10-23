@@ -217,5 +217,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Temporary folder for personal use
+# Temporary folder for personal use or test
 temps/
+uploads/
+
+# Test and local database
+*.sqlite

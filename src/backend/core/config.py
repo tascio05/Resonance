@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 ENV_FILE_PATH = os.path.join(ROOT_DIR, ".env")

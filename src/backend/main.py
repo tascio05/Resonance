@@ -1,7 +1,7 @@
-from fastapi import FastAPI, APIRouter
+from api.songs_controller import router as song_router
+from api.users_controller import router as user_router
+from fastapi import APIRouter, FastAPI
 from fastapi.responses import JSONResponse
-
-from api.users import router as user_router
 
 app = FastAPI(
     title="Resonance",
@@ -16,10 +16,11 @@ api_router = APIRouter(prefix="/api")
 
 
 api_router.include_router(user_router, prefix="/users", tags=["Users"])
+api_router.include_router(song_router, prefix="/songs", tags=["Songs"])
 
 app.include_router(api_router)
 
 
 @app.get("/health", include_in_schema=False)
 def health():
-    return JSONResponse(content={"status:": "ok"})
+    return JSONResponse(content={"status": "ok"})
