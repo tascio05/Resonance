@@ -16,18 +16,25 @@ def create_song(
     user_id: int,
 ) -> Song | None:
     os.makedirs("uploads/songs", exist_ok=True)
-    file_path = f"uploads/songs/{uuid.uuid4()}.mp3"
+
+    _, ext = os.path.splitext(audio_file.filename)
+    file_path = f"uploads/songs/{uuid.uuid4()}{ext}"
+
+    audio_file.file.seek(0)
 
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(audio_file.file, buffer)
 
-    audio = mutagen.File(file_path)
+    try:
+        audio = mutagen.File(file_path)
 
-    if not audio or not audio.info:
+        if not audio or not audio.info:
+            raise ValueError("File is not a valid audio")
+
+        length_seconds = int(audio.info.length)
+    except Exception:
         os.remove(file_path)
         return None
-
-    length_seconds = int(audio.info.length)
 
     new_song = Song(
         user_id=user_id,
