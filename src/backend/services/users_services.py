@@ -1,6 +1,6 @@
 import schemas
 from core.security import get_password_hash
-from database.models import User
+from database.models import User, UserRole
 from sqlalchemy.orm import Session
 
 
@@ -16,3 +16,10 @@ def create_user(db: Session, user_in: schemas.UserCreate) -> User:
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+def update_user_role(db: Session, user: User, new_role: UserRole) -> User:
+    user.role = new_role
+    db.commit()
+    db.refresh(user)
+    return user
