@@ -6,10 +6,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 
-class UserRole(enum.Enum):
-    Admin = 0
-    Listener = 1
-    Musician = 2
+class UserRole(str, enum.Enum):
+    Admin = "Admin"
+    Listener = "Listener"
+    Musician = "Musician"
 
 
 class User(Base):

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from database.models import UserRole
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -13,13 +14,18 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     username: str
+    role: UserRole
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
+class UserRoleUpdate(BaseModel):
+    role: UserRole
+
+
 class SongCreate(BaseModel):
-    title: str = (Field(..., min_length=1, max_length=100),)
+    title: str = Field(..., min_length=1, max_length=100)
     cover_url: str | None = None
     is_public: bool = True
 

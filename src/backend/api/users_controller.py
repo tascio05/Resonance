@@ -1,9 +1,10 @@
 import schemas
-from core.security import create_access_token, pwd_context
+from core.security import create_access_token, get_current_user, pwd_context
+from database.models import User, UserRole
 from database.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from services.users_services import create_user, get_user_by_username
+from services.users_services import create_user, get_user_by_username, update_user_role
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -43,3 +44,15 @@ def login_user(
         "access_token": access_token,
         "token_type": "bearer",
     }
+
+
+@router.patch("/me/role", response_model=schemas.UserResponse)
+def role_user(
+    new_role: schemas.UserRoleUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if new_role.role == UserRole.Admin:
+        raise HTTPException(status_code=403, detail="Cannot self assign Admin role")
+
+    return update_user_role(db, current_user, new_role.role)

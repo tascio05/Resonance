@@ -49,3 +49,45 @@ def test_login_inactive_user(client: TestClient, db_session):
 
     response = client.post("/api/users/login", data=TEST_USER_DATA)
     assert response.status_code == 403
+
+
+def test_update_user_role_to_musician_success(client: TestClient):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    token = logged_user.json()["access_token"]
+
+    response = client.patch(
+        "/api/users/me/role",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"role": "Musician"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["role"] == "Musician"
+
+
+def test_update_user_role_to_admin_forbidden(client: TestClient):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    token = logged_user.json()["access_token"]
+
+    response = client.patch(
+        "/api/users/me/role",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"role": "Admin"},
+    )
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Cannot self assign Admin role"
+
+
+def test_update_wrong_user_role(client: TestClient):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    token = logged_user.json()["access_token"]
+
+    response = client.patch(
+        "/api/users/me/role",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"role": "Test"},
+    )
+    assert response.status_code == 422
