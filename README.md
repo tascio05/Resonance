@@ -9,3 +9,7 @@ RESTful backend architecture built with **Python** and **FastAPI**, following a 
 - **Audio Processing:** `mutagen` for automated metadata extraction
 - **Quality & Testing:** Integration test suite (`pytest` + `TestClient`) and `ruff` linter/formatter
 - **Infrastructure:** Docker & Docker Compose
+- 
+## 🗄️ Database Architecture
+
+![DB Schemas](./docs/entity-relationship_diagram.png)
