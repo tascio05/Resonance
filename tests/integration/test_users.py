@@ -1,3 +1,4 @@
+from database.models import UserRole
 from fastapi.testclient import TestClient
 from services.users_services import get_user_by_username
 
@@ -91,3 +92,37 @@ def test_update_wrong_user_role(client: TestClient):
         json={"role": "Test"},
     )
     assert response.status_code == 422
+
+
+def test_delete_user_as_listener(client: TestClient):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    token = logged_user.json()["access_token"]
+
+    response = client.delete(
+        "api/users/1", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 403
+    assert response.json()["detail"] == "User is not a Admin"
+
+
+def test_delete_user_success(client: TestClient, db_session):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    user = get_user_by_username(db_session, username=TEST_USER_DATA["username"])
+    user.role = UserRole.Admin
+    db_session.commit()
+
+    token = logged_user.json()["access_token"]
+
+    response2 = client.delete(
+        "/api/users/999", headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response2.status_code == 404
+    assert response2.json()["detail"] == "User not found"
+
+    response = client.delete(
+        "/api/users/1", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
