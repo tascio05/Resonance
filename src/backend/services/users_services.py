@@ -23,3 +23,15 @@ def update_user_role(db: Session, user: User, new_role: UserRole) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+def get_user_by_id(db: Session, user_id: int) -> User:
+    user = db.query(User).filter(User.id == user_id).first()
+    return user
+
+
+def deactivate_user(db: Session, user: User) -> User:
+    user.is_active = False
+    db.commit()
+    db.refresh(user)
+    return user

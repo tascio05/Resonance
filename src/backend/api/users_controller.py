@@ -1,10 +1,21 @@
 import schemas
-from core.security import create_access_token, get_current_user, pwd_context
+from core.security import (
+    create_access_token,
+    get_current_user,
+    pwd_context,
+    required_role,
+)
 from database.models import User, UserRole
 from database.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from services.users_services import create_user, get_user_by_username, update_user_role
+from services.users_services import (
+    create_user,
+    deactivate_user,
+    get_user_by_id,
+    get_user_by_username,
+    update_user_role,
+)
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -56,3 +67,16 @@ def role_user(
         raise HTTPException(status_code=403, detail="Cannot self assign Admin role")
 
     return update_user_role(db, current_user, new_role.role)
+
+
+@router.delete("/{user_id}", response_model=schemas.UserResponse)
+def delete_user(
+    user_id: int,
+    admin_user: User = Depends(required_role(UserRole.Admin)),
+    db: Session = Depends(get_db),
+):
+    user_to_delete = get_user_by_id(db, user_id)
+
+    if not user_to_delete:
+        raise HTTPException(status_code=404, detail="User not found")
+    return deactivate_user(db, user_to_delete)

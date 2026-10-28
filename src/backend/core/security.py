@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from core.config import settings
-from database.models import User
+from database.models import User, UserRole
 from database.session import get_db
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -49,3 +49,14 @@ def get_current_user(
         raise HTTPException(status_code=403, detail="Inactive user")
 
     return user
+
+
+def required_role(required_role: UserRole):
+    def role_checker(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role != required_role:
+            raise HTTPException(
+                status_code=403, detail=f"User is not a {required_role.value}"
+            )
+        return current_user
+
+    return role_checker
