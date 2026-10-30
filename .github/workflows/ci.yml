@@ -12,7 +12,11 @@ jobs:
 
     env:
       PYTHONPATH: src/backend
-      DATABASE_URL: sqlite:///./test_ci.sqlite
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+      POSTGRES_PORT: 5432
+      DATABASE_URL: sqlite:///./test_resonance.sqlite
       SECRET_KEY: ci_super_secret_test_key_for_github_actions
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
