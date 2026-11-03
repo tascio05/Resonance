@@ -49,3 +49,17 @@ def create_song(
     db.commit()
     db.refresh(new_song)
     return new_song
+
+
+def get_public_songs(db: Session, skip: int = 0, limit: int = 20) -> list[Song]:
+    return (
+        db.query(Song)
+        .filter(Song.is_public == True, Song.is_active == True)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def get_song_by_id(db: Session, song_id: int) -> Song | None:
+    return db.query(Song).filter(Song.id == song_id, Song.is_active == True).first()

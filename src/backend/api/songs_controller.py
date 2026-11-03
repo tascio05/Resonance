@@ -1,9 +1,9 @@
 import schemas
-from core.security import required_role
+from core.security import get_current_user, required_role
 from database.models import User, UserRole
 from database.session import get_db
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from services.songs_services import create_song
+from services.songs_services import create_song, get_public_songs, get_song_by_id
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -28,4 +28,26 @@ def add_song(
     song = create_song(db, song_in, audio_file, current_user.id)
     if not song:
         raise HTTPException(status_code=400, detail="Invalid audio file")
+    return song
+
+
+@router.get("/", response_model=list[schemas.SongResponse])
+def read_public_songs(
+    skip: int = 0,
+    limit: int = 20,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return get_public_songs(db, skip=skip, limit=limit)
+
+
+@router.get("/{song_id}", response_model=schemas.SongResponse)
+def read_song_by_id(
+    song_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    song = get_song_by_id(db, song_id)
+    if not song or (not song.is_public and song.user_id != current_user.id):
+        raise HTTPException(status_code=404, detail="Song not found")
     return song
