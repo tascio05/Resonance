@@ -3,7 +3,12 @@ from core.security import get_current_user, required_role
 from database.models import User, UserRole
 from database.session import get_db
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from services.songs_services import create_song, get_public_songs, get_song_by_id
+from services.songs_services import (
+    create_song,
+    deactivate_song,
+    get_public_songs,
+    get_song_by_id,
+)
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -51,3 +56,20 @@ def read_song_by_id(
     if not song or (not song.is_public and song.user_id != current_user.id):
         raise HTTPException(status_code=404, detail="Song not found")
     return song
+
+
+@router.delete("/{song_id}", response_model=schemas.SongResponse)
+def delete_song_by_id(
+    song_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    song = get_song_by_id(db, song_id)
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    if song.user_id != current_user.id and current_user.role != UserRole.Admin:
+        raise HTTPException(
+            status_code=403, detail="Only the owner of this song can delete it"
+        )
+    return deactivate_song(db, song)

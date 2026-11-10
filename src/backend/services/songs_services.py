@@ -63,3 +63,10 @@ def get_public_songs(db: Session, skip: int = 0, limit: int = 20) -> list[Song]:
 
 def get_song_by_id(db: Session, song_id: int) -> Song | None:
     return db.query(Song).filter(Song.id == song_id, Song.is_active == True).first()
+
+
+def deactivate_song(db: Session, song: Song) -> Song:
+    song.is_active = False
+    db.commit()
+    db.refresh(song)
+    return song

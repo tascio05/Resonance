@@ -39,6 +39,7 @@ class SongResponse(BaseModel):
     cover_url: str | None = None
     audio_url: str
     is_public: bool
+    is_active: bool
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
