@@ -126,13 +126,13 @@ def test_read_song_by_id(client: TestClient, db_session):
     file_path_test = "tests/integration/dummy.mp3"
 
     with open(file_path_test, "rb") as f:
-        response = client.post(
+        song = client.post(
             "/api/songs/",
             headers={"Authorization": f"Bearer {token}"},
             data={"title": "Test song", "is_public": "true"},
             files={"audio_file": ("test.mp3", f, "audio/mp3")},
         )
-    data = response.json()
+    data = song.json()
 
     response = client.get("/api/songs/1", headers={"Authorization": f"Bearer {token}"})
 
@@ -229,4 +229,93 @@ def test_delete_song_not_owner(client: TestClient, db_session):
     assert response.status_code == 403
     assert response.json()["detail"] == "Only the owner of this song can delete it"
 
+    os.remove(data["audio_url"])
+
+
+def test_add_song_to_favourite(client: TestClient, db_session):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    new_user = get_user_by_username(db_session, username=TEST_USER_DATA["username"])
+    new_user.role = UserRole.Musician
+    db_session.commit()
+
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    token = logged_user.json()["access_token"]
+
+    file_path_test = "tests/integration/dummy.mp3"
+
+    with open(file_path_test, "rb") as f:
+        song = client.post(
+            "/api/songs/",
+            headers={"Authorization": f"Bearer {token}"},
+            data={"title": "Test song", "is_public": "true"},
+            files={"audio_file": ("test.mp3", f, "audio/mp3")},
+        )
+    data = song.json()
+
+    client.post("/api/users/register", json=TEST_USER_DATA_2)
+    db_session.commit()
+
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA_2)
+    token2 = logged_user.json()["access_token"]
+
+    response = client.post(
+        f"/api/songs/{data['id']}/favourites",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+    assert response.status_code == 201
+
+    response2 = client.post(
+        f"/api/songs/{data['id']}/favourites",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+
+    assert response2.status_code == 409
+    assert response2.json()["detail"] == "This song is already in favourites"
+    os.remove(data["audio_url"])
+
+
+def test_remove_song_from_favourite(client: TestClient, db_session):
+    client.post("/api/users/register", json=TEST_USER_DATA)
+    new_user = get_user_by_username(db_session, username=TEST_USER_DATA["username"])
+    new_user.role = UserRole.Musician
+    db_session.commit()
+
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
+    token = logged_user.json()["access_token"]
+
+    file_path_test = "tests/integration/dummy.mp3"
+
+    with open(file_path_test, "rb") as f:
+        song = client.post(
+            "/api/songs/",
+            headers={"Authorization": f"Bearer {token}"},
+            data={"title": "Test song", "is_public": "true"},
+            files={"audio_file": ("test.mp3", f, "audio/mp3")},
+        )
+    data = song.json()
+
+    client.post("/api/users/register", json=TEST_USER_DATA_2)
+    db_session.commit()
+
+    logged_user = client.post("/api/users/login", data=TEST_USER_DATA_2)
+    token2 = logged_user.json()["access_token"]
+
+    client.post(
+        f"/api/songs/{data['id']}/favourites",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+
+    response = client.delete(
+        f"/api/songs/{data['id']}/favourites",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+    assert response.status_code == 200
+
+    response2 = client.delete(
+        f"/api/songs/{data['id']}/favourites",
+        headers={"Authorization": f"Bearer {token2}"},
+    )
+
+    assert response2.status_code == 404
+    assert response2.json()["detail"] == "This song isn't already in favourites"
     os.remove(data["audio_url"])

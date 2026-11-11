@@ -4,7 +4,7 @@ import uuid
 
 import mutagen
 import schemas
-from database.models import Song
+from database.models import Favourite, Song
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
@@ -70,3 +70,24 @@ def deactivate_song(db: Session, song: Song) -> Song:
     db.commit()
     db.refresh(song)
     return song
+
+
+def get_favourite(db: Session, user_id: int, song_id: int) -> Favourite | None:
+    return (
+        db.query(Favourite)
+        .filter(Favourite.user_id == user_id, Favourite.song_id == song_id)
+        .first()
+    )
+
+
+def add_favourite_song(db: Session, user_id: int, song_id: int) -> Favourite:
+    new_favourite = Favourite(user_id=user_id, song_id=song_id)
+    db.add(new_favourite)
+    db.commit()
+    db.refresh(new_favourite)
+    return new_favourite
+
+
+def remove_favourite_song(db: Session, favourite: Favourite) -> None:
+    db.delete(favourite)
+    db.commit()
