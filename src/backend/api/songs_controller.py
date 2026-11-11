@@ -4,10 +4,13 @@ from database.models import User, UserRole
 from database.session import get_db
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from services.songs_services import (
+    add_favourite_song,
     create_song,
     deactivate_song,
+    get_favourite,
     get_public_songs,
     get_song_by_id,
+    remove_favourite_song,
 )
 from sqlalchemy.orm import Session
 
@@ -73,3 +76,42 @@ def delete_song_by_id(
             status_code=403, detail="Only the owner of this song can delete it"
         )
     return deactivate_song(db, song)
+
+
+@router.post(
+    "/{song_id}/favourites", response_model=schemas.FavouriteResponse, status_code=201
+)
+def add_song_to_favourites(
+    song_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    song = get_song_by_id(db, song_id)
+    if not song or not song.is_public:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    existing_favourite = get_favourite(db, current_user.id, song_id)
+    if existing_favourite:
+        raise HTTPException(
+            status_code=409, detail="This song is already in favourites"
+        )
+
+    return add_favourite_song(db, current_user.id, song_id)
+
+
+@router.delete("/{song_id}/favourites")
+def remove_song_to_favourites(
+    song_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    song = get_song_by_id(db, song_id)
+    if not song or not song.is_public:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    existing_favourite = get_favourite(db, current_user.id, song_id)
+    if not existing_favourite:
+        raise HTTPException(
+            status_code=404, detail="This song isn't already in favourites"
+        )
+    return remove_favourite_song(db, existing_favourite)
