@@ -9,6 +9,7 @@ from database.models import User, UserRole
 from database.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from services.songs_services import get_favourite_songs
 from services.users_services import (
     create_user,
     deactivate_user,
@@ -80,3 +81,12 @@ def delete_user(
     if not user_to_delete:
         raise HTTPException(status_code=404, detail="User not found")
     return deactivate_user(db, user_to_delete)
+
+@router.get("/me/favourites", response_model=list[schemas.SongResponse])
+def read_favourite_songs(
+    skip: int = 0,
+    limit: int = 20,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return get_favourite_songs(db, current_user.id, skip=skip, limit=limit)
