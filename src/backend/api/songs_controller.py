@@ -115,3 +115,4 @@ def remove_song_to_favourites(
             status_code=404, detail="This song isn't already in favourites"
         )
     return remove_favourite_song(db, existing_favourite)
+

@@ -91,3 +91,12 @@ def add_favourite_song(db: Session, user_id: int, song_id: int) -> Favourite:
 def remove_favourite_song(db: Session, favourite: Favourite) -> None:
     db.delete(favourite)
     db.commit()
+
+def get_favourite_songs(db: Session, user_id: int, skip: int = 0, limit: int = 20) -> list[Song]:
+    return (
+        db.query(Song).join(Favourite).filter(Favourite.user_id == user_id, Song.is_public == True, Song.is_active == True)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    
