@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+    ADMIN_USERNAME: str
+    ADMIN_PASSWORD: str
     POSTGRES_PORT: int = 5432
     SECRET_KEY: str
 

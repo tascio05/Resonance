@@ -1,6 +1,7 @@
 from api.songs_controller import router as song_router
 from api.users_controller import router as user_router
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 app = FastAPI(
@@ -11,6 +12,13 @@ app = FastAPI(
     redoc_url=None,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 api_router = APIRouter(prefix="/api")
 
