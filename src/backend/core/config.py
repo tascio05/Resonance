@@ -8,6 +8,7 @@ ENV_FILE_PATH = os.path.join(ROOT_DIR, ".env")
 
 class Settings(BaseSettings):
     POSTGRES_USER: str
+    ALGORITHM: str = "HS256"
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
     ADMIN_USERNAME: str
