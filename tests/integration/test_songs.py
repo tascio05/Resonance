@@ -330,7 +330,9 @@ def test_read_favourites_success(client: TestClient, db_session):
     logged_user = client.post("/api/users/login", data=TEST_USER_DATA)
     token = logged_user.json()["access_token"]
 
-    response = client.get("/api/users/me/favourites", headers={"Authorization": f"Bearer {token}"})
+    response = client.get(
+        "/api/users/me/favourites", headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 200
     assert response.json() == []
@@ -351,7 +353,9 @@ def test_read_favourites_success(client: TestClient, db_session):
         headers={"Authorization": f"Bearer {token}"},
     )
 
-    response2 = client.get("/api/users/me/favourites", headers={"Authorization": f"Bearer {token}"})
+    response2 = client.get(
+        "/api/users/me/favourites", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response2.status_code == 200
     assert response2.json()[0]["title"] == "Test song"
     assert len(response2.json()) == 1

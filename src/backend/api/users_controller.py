@@ -82,6 +82,7 @@ def delete_user(
         raise HTTPException(status_code=404, detail="User not found")
     return deactivate_user(db, user_to_delete)
 
+
 @router.get("/me/favourites", response_model=list[schemas.SongResponse])
 def read_favourite_songs(
     skip: int = 0,
